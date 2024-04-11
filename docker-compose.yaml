@@ -1,0 +1,125 @@
+version: '3'
+services:
+  tautulli:
+    image: linuxserver/tautulli:latest
+    container_name: tautulli
+    environment:
+      - PUID=1001
+      - PGID=1001
+      - TZ=Europe/London
+    volumes:
+      - /home/zak/docker/config/tautilli:/config
+    ports:
+      - 8181:8181
+    restart: unless-stopped
+
+  sonarr:
+    image: ghcr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /home/zak/docker/config/sonarr:/config
+      - /media/zak/New Volume/media/TV:/tv
+      - /media/zak/New Volume/downloads:/downloads
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  radarr:
+    image: ghcr.io/linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /home/zak/docker/config/radarr:/config
+      - /media/zak/New Volume/media/movies:/movies
+      - /media/zak/New Volume/downloads:/downloads
+    ports:
+      - 7877:7878
+    restart: unless-stopped
+
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - VERSION=docker
+      - PLEX_CLAIM= #optional
+    volumes:
+      - /home/zak/docker/config/plex:/config
+      - /media/zak/New Volume/media/TV:/tv
+      - /media/zak/New Volume/media/movies:/movies
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    container_name: qbittorrentvpn
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - WEBUI_PORT=8182
+    volumes:
+      - /home/zak/docker/config/qbit:/config
+      - /media/zak/New Volume/downloads:/downloads
+    restart: unless-stopped
+    network_mode: service:vpn
+
+  prowlarr:
+    container_name: prowlarr
+    image: lscr.io/linuxserver/prowlarr:develop
+    environment:
+      - PUID=1001
+      - PGID=1001
+      - UMASK=002
+      - TZ=Europe/London
+    volumes:
+      - /home/zak/docker/config/prowlarr:/config
+    network_mode: service:vpn
+    restart: unless-stopped
+
+  vpn:
+    image: thrnz/docker-wireguard-pia
+    volumes:
+      - /home/zak/docker/config/pia:/pia
+    cap_add:
+      - NET_ADMIN
+      # SYS_MODULE might not be needed with a 5.6+ kernel?
+      - SYS_MODULE
+    environment:
+      # The following env vars are required:
+      - LOC=swiss
+      - USER=p6133640
+      - PASS=aysNHpJsN4
+      # The rest are optional:
+      - LOCAL_NETWORK=10.0.0.0/8, 192.168.0.0/16
+      #- KEEPALIVE=25
+      - VPNDNS=8.8.8.8,8.8.4.4
+      - PORT_FORWARDING=1
+      #- WG_USERSPACE=1
+      - PORT_PERSIST=1
+    ports:
+      - 8182:8182
+      - 9696:9696
+      - 9117:9117
+    sysctls:
+      # wg-quick fails to set this without --privileged, so set it here instead                                                                                                                                                              if needed
+      - net.ipv4.conf.all.src_valid_mark=1
+      # May as well disable ipv6. Should be blocked anyway.
+      - net.ipv6.conf.default.disable_ipv6=1
+      - net.ipv6.conf.all.disable_ipv6=1
+      - net.ipv6.conf.lo.disable_ipv6=1
+    healthcheck:
+      test: ping -c 1 www.google.com || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
