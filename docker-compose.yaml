@@ -8,7 +8,7 @@ services:
       - PGID=1001
       - TZ=Europe/London
     volumes:
-      - /home/zak/docker/config/tautilli:/config
+      - /home/zakariya/docker/config/tautilli:/config
     ports:
       - 8181:8181
     restart: unless-stopped
@@ -21,9 +21,9 @@ services:
       - PGID=1000
       - TZ=Europe/London
     volumes:
-      - /home/zak/docker/config/sonarr:/config
-      - /media/zak/New Volume/media/TV:/tv
-      - /media/zak/New Volume/downloads:/downloads
+      - /home/zakariya/docker/config/sonarr:/config
+      - /media/zakariya/New Volume1/media/TV:/tv
+      - /media/zakariya/New Volume1/downloads:/downloads
     ports:
       - 8989:8989
     restart: unless-stopped
@@ -36,9 +36,9 @@ services:
       - PGID=1000
       - TZ=Europe/London
     volumes:
-      - /home/zak/docker/config/radarr:/config
-      - /media/zak/New Volume/media/movies:/movies
-      - /media/zak/New Volume/downloads:/downloads
+      - /home/zakariya/docker/config/radarr:/config
+      - /media/zakariya/New Volume1/media/movies:/movies
+      - /media/zakariya/New Volume1/downloads:/downloads
     ports:
       - 7877:7878
     restart: unless-stopped
@@ -54,9 +54,9 @@ services:
       - VERSION=docker
       - PLEX_CLAIM= #optional
     volumes:
-      - /home/zak/docker/config/plex:/config
-      - /media/zak/New Volume/media/TV:/tv
-      - /media/zak/New Volume/media/movies:/movies
+      - /home/zakariya/docker/config/plex:/config
+      - /media/zakariya/New Volume1/media/TV:/tv
+      - /media/zakariya/New Volume1/media/movies:/movies
     restart: unless-stopped
 
   qbittorrent:
@@ -68,8 +68,8 @@ services:
       - TZ=Europe/London
       - WEBUI_PORT=8182
     volumes:
-      - /home/zak/docker/config/qbit:/config
-      - /media/zak/New Volume/downloads:/downloads
+      - /home/zakariya/docker/config/qbit:/config
+      - /media/zakariya/New Volume1/downloads:/downloads
     restart: unless-stopped
     network_mode: service:vpn
 
@@ -82,14 +82,14 @@ services:
       - UMASK=002
       - TZ=Europe/London
     volumes:
-      - /home/zak/docker/config/prowlarr:/config
+      - /home/zakariya/docker/config/prowlarr:/config
     network_mode: service:vpn
     restart: unless-stopped
 
   vpn:
     image: thrnz/docker-wireguard-pia
     volumes:
-      - /home/zak/docker/config/pia:/pia
+      - /home/zakariya/docker/config/pia:/pia
     cap_add:
       - NET_ADMIN
       # SYS_MODULE might not be needed with a 5.6+ kernel?
@@ -122,4 +122,17 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    restart: unless-stopped
+
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /home/zakariya/docker/config/overseerr:/config
+    ports:
+      - 5055:5055
     restart: unless-stopped
