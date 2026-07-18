@@ -110,9 +110,9 @@ services:
       - SYS_MODULE
     environment:
       # The following env vars are required:
-      - LOC=swiss
-      - USER=p6133640
-      - PASS=aysNHpJsN4
+      - LOC=
+      - USER=
+      - PASS=
       # The rest are optional:
       - LOCAL_NETWORK=10.0.0.0/8, 192.168.0.0/16
       #- KEEPALIVE=25
